@@ -35,16 +35,6 @@ fprintf(['Plotting data with + indicating (y = 1) examples and o ' ...
 
 plotData(X, y);
 
-% Put some labels
-hold on;
-% Labels and Legend
-xlabel('Exam 1 score')
-ylabel('Exam 2 score')
-
-% Specified in plot order
-legend('Admitted', 'Not admitted')
-hold off;
-
 fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
 
@@ -87,7 +77,8 @@ pause;
 
 
 %% ============= Part 3: Optimizing using fminunc  =============
-%  In this exercise, you will use a built-in function (fminunc) to find the
+%  In this exercise, you will use a built-in
+%  function (fminunc) to find the
 %  optimal parameters theta.
 
 %  Set options for fminunc
@@ -123,13 +114,16 @@ fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
 
 %% ============== Part 4: Predict and Accuracies ==============
-%  After learning the parameters, you'll like to use it to predict the outcomes
-%  on unseen data. In this part, you will use the logistic regression model
-%  to predict the probability that a student with score 45 on exam 1 and
+%  After learning the parameters, you'll like to use
+%  it to predict the outcomes
+%  on unseen data. In this part, you will use the
+%  logistic regression model
+%  to predict the probability that a student with score
+%  45 on exam 1 and
 %  score 85 on exam 2 will be admitted.
 %
-%  Furthermore, you will compute the training and test set accuracies of
-%  our model.
+%  Furthermore, you will compute the training and test
+%  set accuracies ofour model.
 %
 %  Your task is to complete the code in predict.m
 
