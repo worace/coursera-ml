@@ -45,8 +45,6 @@ X = [ones(m, 1) X];
 %       are dealing with large number of parameters.
 %
 for c = 1:num_labels
-  fprintf('calculating label %f\n', c);
-  fprintf('number of matching outputs: %f\n', sum(y == c))
   initial_theta = zeros(n + 1, 1);
   options = optimset('GradObj', 'on', 'MaxIter', 50);
   optimized_theta = fmincg(@(t)(lrCostFunction(t, X, y == c, lambda)),

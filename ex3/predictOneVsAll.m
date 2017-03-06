@@ -14,7 +14,6 @@ function p = predictOneVsAll(all_theta, X)
   per_class_predictions = [ones(size(X,1),1) X] * all_theta';
   per_class_predictions = sigmoid(per_class_predictions);
   [confidences, classes] = max(per_class_predictions, [], 2);
-  fprintf('size of p: %f\n', size(classes));
   p = classes;
 
 end
