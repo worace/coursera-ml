@@ -83,36 +83,44 @@ function [J grad] = nnCostFunction(nn_params, ...
 # 0 1 0 0 0 0 0 0 0 0
 # 0 0 0 0 0 0 7 0 0 0
 
+%
+% Note: The vector y passed into the function is a vector of labels
+%       containing values from 1..K. You need to map this vector into a
+%       binary vector of 1's and 0's to be used with the neural network
+%       cost function.
   for i = 1:size(X,1)
     class = y(i);
     bucketed_y(i, class) = 1;
   end
 
-  sum = 0;
-  for i = 1:size(X,1)
-    for k = 1:num_labels
-      pred = bucketed_y(i,k);
-      h = h_theta(i,k);
-      cost_per = pred * log(h) + (1 - pred) * log(1 - h);
-      sum += cost_per;
-    end
-  end
-  ## 0.287629
-  J = - sum/m;
-
-
-
-  Theta1_grad = zeros(size(Theta1));
-  Theta2_grad = zeros(size(Theta2));
-
-% ====================== YOUR CODE HERE ======================
-% Instructions: You should complete the code by working through the
-%               following parts.
-%
 % Part 1: Feedforward the neural network and return the cost in the
 % variable J. After implementing Part 1, you can verify that your
 % cost function computation is correct by verifying the cost
 % computed in ex4.m
+
+
+  sum = 0;
+  for i = 1:size(X,1)
+    yi = bucketed_y(i,:);
+    hi = h_theta(i,:);
+    cost_vec = (yi .* log(hi) + (1 - yi) .* log(1 - hi));
+    cost = cost_vec * ones(size(cost_vec, 2), 1);
+    ## cost_vec [0.02 0.5 ... 10]
+    sum += cost;
+  end
+
+  J = -sum/m;
+
+  Theta1NoBias = Theta1(:,2:size(Theta1,2)) .^ 2;
+  Theta2NoBias = Theta2(:,2:size(Theta2,2)) .^ 2;
+
+  # Not sure if there is a more elegant way to sum matrices...
+  r1 = ones(1,size(Theta1NoBias, 1)) * (Theta1NoBias * ones(size(Theta1NoBias, 2), 1));
+  r2 = ones(1,size(Theta2NoBias, 1)) * (Theta2NoBias * ones(size(Theta2NoBias, 2), 1));
+  regularization = (lambda / (2 * m)) * (r1 + r2);
+
+  J += regularization;
+
 %
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 % Theta1_grad and Theta2_grad. You should return the partial derivatives of
@@ -120,15 +128,42 @@ function [J grad] = nnCostFunction(nn_params, ...
 % Theta2_grad, respectively. After implementing Part 2, you can check
 % that your implementation is correct by running checkNNGradients
 %
-% Note: The vector y passed into the function is a vector of labels
-%       containing values from 1..K. You need to map this vector into a
-%       binary vector of 1's and 0's to be used with the neural network
-%       cost function.
-%
-% Hint: We recommend implementing backpropagation using a for-loop
-%       over the training examples if you are implementing it for the
-%       first time.
-%
+
+  Theta2_grad = zeros(size(Theta2));
+  Theta1_grad = zeros(size(Theta1));
+
+  # L = 3 (one hidden layer)
+  # d3 = dL
+  d3 = a3 - bucketed_y;
+  # Get the regularization term for theta2 by multiplying
+  # all columns except the first (bias unit) by lambda
+  # then add this to the gradient
+  reg_theta2 = [Theta2(:,1) (lambda * Theta2(:,2:size(Theta2, 2)))];
+  Theta2_grad = (d3' * a2) / m;
+  d2 = (d3 * Theta2) .* (a2 .* (1-a2));
+  # Remove the left-most column for delta 2 because
+  # it targets the "bias unit" of Theta1, and we don't
+  # want to adjust this input with a delta
+  d2_no_bias = d2(:,2:size(d2,2));
+  reg_theta1 = lambda * Theta1;
+  Theta1_grad = (d2_no_bias' * a1) / m;
+
+  ## for i = 1:size(X,1)
+  i = 1;
+  for i = 1:4
+    d3 = a3(i,:) - bucketed_y(i,:);
+    # Incorporate error for this example into overall
+    # gradient for this layer
+    # Theta2_grad = Theta2_grad + (a2(1,:)' * d3);
+
+    d2 = (d3 * Theta2) .* (a2(i,:) .* (1 - a2(i,:)));
+
+    # Theta1_grad = Theta1_grad + a1(1,:)' * d2(2:26);
+  end
+
+
+  Theta2_grad = (d3 * Theta2)' * (a3 .* (1 - a3))
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %Hint: You can implement this around the code for
@@ -136,17 +171,6 @@ function [J grad] = nnCostFunction(nn_params, ...
 %      the regularization separately and then add them to Theta1_grad
 %      and Theta2_grad from Part 2.
 %
-
-
-
-
-
-
-
-
-
-
-
 
 
 
